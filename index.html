@@ -96,7 +96,7 @@ section.block{padding-block:56px 24px;scroll-margin-top:80px}
 .row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:auto;padding-top:6px}
 .price{font-weight:700;font-variant-numeric:tabular-nums}
 .hoa-sec .price{color:var(--lotus)} .trai-sec .price{color:var(--mango)}
-.order{border:1px solid var(--zalo);color:var(--zalo);background:transparent;border-radius:999px;padding:5px 12px;font-size:13px;font-weight:600}
+.order{display:inline-block;text-decoration:none;white-space:nowrap;border:1px solid var(--zalo);color:var(--zalo);background:transparent;border-radius:999px;padding:5px 12px;font-size:13px;font-weight:600}
 .order:hover{background:var(--zalo);color:#fff}
 .empty{color:var(--muted);padding:24px 0}
 
@@ -398,7 +398,7 @@ function setup(key, cats, items, art, unitOf){
           <h3>${it[0]}</h3>
           <p>${it[2]}</p>
           <div class="row"><span class="price">${fmt(it[3])}${unitOf(it)}</span>
-          <button class="order" type="button" data-msg="Chào Quầy Hoa Trái Bốn Mùa, tôi muốn đặt: ${it[0]} (${fmt(it[3])}${unitOf(it)})">Đặt qua Zalo</button></div>
+          <a class="order" href="https://zalo.me/${ZALO}" target="_blank" rel="noopener" data-msg="Chào Quầy Hoa Trái Bốn Mùa, tôi muốn đặt: ${it[0]} (${fmt(it[3])}${unitOf(it)})">Đặt qua Zalo</a></div>
         </div>
       </article>`).join("") : `<p class="empty">Chưa có mẫu phù hợp. Nhắn Zalo để quầy làm theo yêu cầu của bạn.</p>`;
   }
@@ -409,7 +409,7 @@ setup("trai", TRAI_CATS, TRAI, fruitArt, it => it[6]==="kg" ? "/kg" : "");
 
 function svc(id, list, label){
   $(id).innerHTML = list.map(s=>`<div class="sitem"><b>${s[0]}</b><em>${s[2]}</em><small>${s[1]}</small>
-    <button class="order" type="button" data-msg="Chào Quầy Hoa Trái Bốn Mùa, tôi cần tư vấn dịch vụ ${label}: ${s[0]}">Nhận báo giá</button></div>`).join("");
+    <a class="order" href="https://zalo.me/${ZALO}" target="_blank" rel="noopener" data-msg="Chào Quầy Hoa Trái Bốn Mùa, tôi cần tư vấn dịch vụ ${label}: ${s[0]}">Nhận báo giá</a></div>`).join("");
 }
 svc("#svc-hoa", SVC_HOA, "hoa");
 svc("#svc-trai", SVC_TRAI, "trái cây");
@@ -424,11 +424,10 @@ function say(t){toast.textContent=t;toast.hidden=false;clearTimeout(tt);tt=setTi
 async function copy(text){
   try{await navigator.clipboard.writeText(text);return true;}catch(e){return false;}
 }
-document.addEventListener("click", async e=>{
+document.addEventListener("click", e=>{
   const b = e.target.closest(".order"); if(!b) return;
-  const ok = await copy(b.dataset.msg);
-  say(ok ? "Đã chép nội dung đơn. Dán vào Zalo để gửi cho quầy." : "Mở Zalo và nhắn: " + b.dataset.msg);
-  const a = document.createElement("a"); a.href = zUrl; a.target = "_blank"; a.rel = "noopener"; a.click();
+  /* Không chặn link: trình duyệt mở Zalo ngay, việc chép nội dung chạy song song */
+  copy(b.dataset.msg).then(ok=>say(ok ? "Đã chép nội dung đơn. Dán vào khung chat Zalo để gửi cho quầy." : "Nhắn Zalo " + ZALO + ": " + b.dataset.msg));
 });
 $("#copy-num").addEventListener("click", async ()=>{
   say(await copy(ZALO) ? "Đã chép số Zalo " + ZALO : "Số Zalo: " + ZALO);
